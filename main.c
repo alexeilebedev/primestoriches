@@ -18,7 +18,7 @@ int next(int i) {
   int offset=0;
   if (i/3*3 == i) offset += -1;
   if (i/5*5 == i) offset += -8;
-  if (i/7*7 == i) offset += -8;
+  if (i/7*7 == i) offset += -7;
   return i+offset >= 0 ? i+offset : i;
 }
 
@@ -52,7 +52,6 @@ int throwdie() {
 }
 
 int getcost(int pos) {
-  if (pos >= 113) return 5;
   if (pos >= 97) return 4;
   if (pos >= 65) return 3;
   if (pos >= 33) return 2;
@@ -63,7 +62,8 @@ typedef struct {
   int pos;
   int nmoves;
   int dollars;
-  int thresh; /* threshold beyond which we pay */
+  int posthresh; /* threshold beyond which we pay */
+  int offsetthresh; /* move beyond which we pay */
   int debug;
   int id;
 } game_t;
@@ -80,10 +80,10 @@ void simulate(game_t *game) {
     game->nmoves++;
     nextpos=finalnext(game->pos);
     cost=getcost(game->pos);
-    dopay = nextpos < game->pos && game->pos >= game->thresh && game->dollars >= cost;
+    dopay = nextpos+game->offsetthresh < game->pos && game->pos >= game->posthresh && game->dollars >= cost;
     if (game->debug) {
-      printf("game  id:%d  thresh:%d  roll:%d  pos:%d  nextpos:%d  dopay:%d  dollars:%d\n"
-	     , game->id, game->thresh, roll, game->pos, nextpos, dopay, game->dollars);
+      printf("game  id:%d  posthresh:%d  offsetthresh:%d  roll:%d  pos:%d  nextpos:%d  dopay:%d  dollars:%d\n"
+	     , game->id, game->posthresh, game->offsetthresh, roll, game->pos, nextpos, dopay, game->dollars);
     }
     if (game->pos<128) {
       if (dopay) {
@@ -97,25 +97,31 @@ void simulate(game_t *game) {
 
 void analyze() {
   int i=0;
-  int thresh=0;
+  int posthresh=0;
+  int offsetthresh=0;
   int gameid=0;
-  for (thresh=1; thresh<128; thresh+=8) {
-    game_t sum;
-    memset(&sum,0,sizeof(sum));
-    sum.thresh=thresh;
-    int niter=0;
-    for (i=0; i<1000; i++) {
-      game_t game;
-      memset(&game,0,sizeof(game));
-      game.debug=thresh==57 && i==0;
-      game.id=gameid++;
-      game.thresh=thresh;
-      simulate(&game);
-      sum.nmoves+=game.nmoves;
-      sum.dollars+=game.dollars;
-      niter++;
+  for (posthresh=1; posthresh<128; posthresh+=8) {
+    for (offsetthresh=4; offsetthresh<12; offsetthresh+=4) {
+      game_t sum;
+      memset(&sum,0,sizeof(sum));
+      sum.posthresh=posthresh;
+      sum.offsetthresh=offsetthresh;
+      int niter=0;
+      for (i=0; i<1000; i++) {
+	game_t game;
+	memset(&game,0,sizeof(game));
+	game.debug=0 && posthresh==57 && i==0;
+	game.id=gameid++;
+	game.posthresh=posthresh;
+	game.offsetthresh=offsetthresh;
+	simulate(&game);
+	sum.nmoves+=game.nmoves;
+	sum.dollars+=game.dollars;
+	niter++;
+      }
+      printf("simulate  posthresh:%d  offsetthresh:%d  nmoves:%d  money_at_end:%d\n"
+	     ,sum.posthresh, sum.offsetthresh, sum.nmoves/niter, sum.dollars/niter);
     }
-    printf("simulate  thresh:%d  nmoves:%d  money_at_end:%d\n",sum.thresh, sum.nmoves/niter, sum.dollars/niter);
   }
 }
 
