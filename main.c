@@ -31,17 +31,24 @@ int finalnext(int i) {
   return j;
 }
 
+int rowof(int i) {
+  return (i-1)/8;
+}
+int colof(int i) {
+  return (i-1)%8;
+}
+
 char *getarrow(int i, int j) {
   static char arrow[5];
   int narrow=0;
   int x,y,newx,newy;
   memset(arrow,0,sizeof(arrow));
-  x=i%8;
-  y=i/8;
-  newx=j%8;
-  newy=j/8;
-  if (newx>x)   arrow[narrow++] = 'R';
-  if (newx<x)   arrow[narrow++] = 'L';
+  x=colof(i);
+  y=rowof(i);
+  newx=colof(j);
+  newy=rowof(j);
+  if (newx== x+1 || newx==x-7)   arrow[narrow++] = 'R';
+  if (newx== x-1 || newx==x+7)   arrow[narrow++] = 'L';
   if (newy<y)   arrow[narrow++] = 'D';
   if (newy<y-1) arrow[narrow++] = 'D';
   return arrow;
@@ -131,7 +138,7 @@ int main() {
     int prime=primeq(i);
     int j=next(i);
     char *arrow=getarrow(i,j);
-    printf("%d  %s  ->%d  arrow:%s\n", i, (prime?"prime":"     "), finalnext(i), arrow);
+    printf("%d->%d %s %s ...%d\n", i, j, arrow, (prime?"P":" "), finalnext(i));
   }
   analyze();
   return 0;
