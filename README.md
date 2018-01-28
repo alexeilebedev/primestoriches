@@ -2,10 +2,10 @@ PrimesToRiches is a board game, reminiscent of snakes and ladders, except
 there are no ladders, and all movements are determined by numeric properties
 of the numbers on the cells.
 
-The board is a rectangular array of squares, 8 wide by 16 long
+The board is a rectangular array of squares, 8 wide by 16 long.
 Each square contains a number, 1 through 128
 
-Players start at square 0 (outside the board)
+Players start at square 0 (outside the board).
 Players take turn rolling dice, and moving forward by the number
 shown on the 2 dice. The first player to reach 128 wins.
 
@@ -20,7 +20,7 @@ or "pay to stay". The cost to stay is: $1 for squares 1..32, $2 for squares 33..
 $3 for square 65..96 and $4 for square 97..128
 
 A physical board exists, this is just the supporting program for it.
-This program figures out the optimal pay to stay strategy and checks expected
+This program figures out the optimal pay-to-stay strategy and checks expected
 game runtime based on specified rules. The idea is that there must be a wide gap
 in performance between bad and good strategies, otherwise rules are unbalanced.
 
